@@ -1,0 +1,62 @@
+/*Deletes default margin in browser and hides the scroll bar*/
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: rgba(30, 30, 35, 0.12);
+}
+
+/*Intro Style */
+#introOverlay {
+    position: fixed;         
+    top: 0; left: 0;        
+    width: 100vw;            
+    height: 100vh;       
+    background-color: rgba(30, 30, 35, 0.4); 
+    color: white;            
+    display: flex;           
+    flex-direction: column;  
+    justify-content: center; 
+    align-items: center;     
+    z-index: 9999;           
+    cursor: pointer;
+    transition: opacity 2.5s ease; 
+}
+
+
+#introContent {
+    animation: fadeInText 2s ease forwards;
+    text-align: center;
+    padding: 0 10%;
+}
+
+
+#introOverlay h1 {
+    font-family: serif;
+    font-style: italic;
+    font-size: 12vw; 
+    font-weight: normal;
+    margin: 0 0 20px 0;
+}
+
+#introOverlay p.description {
+    font-family: serif;
+    font-style: italic;
+    font-size: 2.5vw;
+    margin: 0 auto;
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+#introOverlay p.action-text {
+    font-family: serif;
+    font-style: italic;
+    margin-top: 40px;
+    font-size: 3vw;
+    opacity: 0.6;
+}
+
+
+@keyframes fadeInText {
+    from { opacity: 0; transform: scale(0.80); }
+    to { opacity: 1; transform: scale(1); }
+}

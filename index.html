@@ -5,11 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FloraGlobe</title>
     <link rel="stylesheet" href="style.css">
+    
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/globe.gl@2.32.0/dist/globe.gl.min.js"></script>
 </head>
 <body>
+    
+    <div id="introOverlay">
+        <div id="introContent">
+            <h1>FloraGlobe</h1>
+            <p class="description">An interactive, open-source engine dedicated to global biodiversity. Explore real-time occurrences of plant life across the planet, mapped through the Global Biodiversity Information Facility data network.</p>
+            <p class="action-text">[ Click anywhere to initiate sequence ]</p>
+        </div>
+    </div>
+    
     <div id="globeViz"></div>
-    <script src="https://unpkg.com/globe.gl"></script>
-    <script src="flora.js"></script>
+    
+    <audio id="ambientSound" loop src="ambient.mp3"></audio>
 
+    <script src="audio.js"></script>
+    <script src="animation.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
