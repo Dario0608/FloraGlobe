@@ -17,6 +17,6 @@ function startGlobeRotation(globeInstance) {
         clearTimeout(rotationTimeout);
         rotationTimeout = setTimeout(() => {
             controls.autoRotate = true;
-        }, 5000);
+        }, 10000);
     });
 }

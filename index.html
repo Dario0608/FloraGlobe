@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FloraGlobe</title>
     <link rel="stylesheet" href="style.css">
-    
+
     <script src="https://unpkg.com/three@0.153.0/build/three.min.js"></script>
     <script src="https://unpkg.com/globe.gl@2.32.1/dist/globe.gl.min.js"></script>
 </head>
+
 <body>
     <audio id="ambientSound" src="ambient.mp3" loop></audio>
 
     <div id="introOverlay">
         <h1>FloraGlobe</h1>
-        <p>An interactive, open-source engine dedicated to global biodiversity. Explore real-time occurrences of plant life across the planet, mapped through the Global Biodiversity Information Facility data network.</p>
+        <p>An interactive, open-source engine dedicated to global biodiversity. Explore real-time occurrences of plant
+            life across the planet, mapped through the Global Biodiversity Information Facility data network.</p>
         <p>[ Click anywhere to initiate sequence ]</p>
     </div>
 
@@ -22,13 +25,25 @@
         <div class="modal-content">
             <span id="closeModal">&times;</span>
             <h2 id="plantName">Scientific Name</h2>
+
+            <h3 id="plantCommonName" style="margin-top: -1rem; margin-bottom: 1rem; font-weight: normal; color: #e0e0e0; font-size: 1.2rem;">Common Name</h3>
+            <p id="plantDescription" style="font-size: 1rem; line-height: 1.5; margin-bottom: 1.5rem; display: none;"></p>
             
             <img id="plantImage" src="" alt="Plant Image" style="display: none;">
-            
+            <p id="noImageMessage" style="display: none; text-align: center; color: #888; margin-bottom: 1.5rem;">
+                No images found of this plant on Wikipedia.
+            </p>
+
             <div class="plant-details">
-                <div class="detail-item"><p><strong>Family</strong> <span id="plantFamily"></span></p></div>
-                <div class="detail-item"><p><strong>Country</strong> <span id="plantCountry"></span></p></div>
-                <div class="detail-item"><p><strong>Coordinates</strong> <span id="plantCoords"></span></p></div>
+                <div class="detail-item">
+                    <p><strong>Family</strong> <span id="plantFamily"></span></p>
+                </div>
+                <div class="detail-item">
+                    <p><strong>Country</strong> <span id="plantCountry"></span></p>
+                </div>
+                <div class="detail-item">
+                    <p><strong>Coordinates</strong> <span id="plantCoords"></span></p>
+                </div>
             </div>
         </div>
     </div>
@@ -37,6 +52,8 @@
 
     <script src="audio.js"></script>
     <script src="animation.js"></script>
+    <script src="imageFetcher.js"></script>
     <script src="main.js"></script>
 </body>
+
 </html>

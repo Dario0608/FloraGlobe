@@ -48,9 +48,24 @@ function renderPlantsOnGlobe(plants) {
 
             return treeGroup;
         })
+
         .objectLabel(d => {
             const name = d.scientificName || 'Unknown Species';
-            return `<div style="font-size: 1.8rem; font-family: -apple-system, sans-serif; color: white; background: rgba(10,10,10,0.95); padding: 10px 15px; border-radius: 8px; border-left: 4px solid #2ecc71;">
+            //Glass Design
+            return `<div style="
+                font-size: 1.5rem; 
+                font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+                color: white; 
+                background: rgba(255, 255, 255, 0.15); 
+                backdrop-filter: blur(10px); 
+                -webkit-backdrop-filter: blur(10px);
+                border-radius: 15px; 
+                border: 1px solid rgba(255, 255, 255, 0.2); 
+                
+                padding: 10px 20px; 
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                pointer-events: none;
+            ">
                 ${name}
             </div>`;
         })
@@ -58,28 +73,65 @@ function renderPlantsOnGlobe(plants) {
 }
 
 //Open modal container with API details
-function openPlantModal(data) {
+async function openPlantModal(data) {
     document.getElementById("plantName").innerText = data.scientificName || "Unknown Species";
+    
+    //Common Name
+    const commonNameStr = data.vernacularName ? data.vernacularName : "Unknown Common Name";
+    
+    document.getElementById("plantCommonName").innerText = commonNameStr.charAt(0).toUpperCase() + commonNameStr.slice(1);
+
     document.getElementById("plantFamily").innerText = data.family || "Data Missing";
     document.getElementById("plantCountry").innerText = data.country || "Location unknown";
-
+    
     const lat = data.decimalLatitude ? data.decimalLatitude.toFixed(4) : '--';
     const lng = data.decimalLongitude ? data.decimalLongitude.toFixed(4) : '--';
     document.getElementById("plantCoords").innerText = `${lat}, ${lng}`;
-
+    
     const imgElement = document.getElementById("plantImage");
-    if (data.media && data.media.length > 0 && data.media[0].identifier) {
-        imgElement.src = data.media[0].identifier;
-        imgElement.style.display = "block";
-    } else {
-        imgElement.src = "";
-        imgElement.style.display = "none";
-    }
+    const noImageMsg = document.getElementById("noImageMessage");
+    const descElement = document.getElementById("plantDescription");
+    
+    //Reset
+    imgElement.style.display = "none";
+    noImageMsg.style.display = "none";
+    descElement.style.display = "none";
+    imgElement.src = "";
+    descElement.innerText = "";
 
-    document.getElementById("plantModal").style.display = "flex";
+    document.getElementById("plantModal").style.display = "flex"; 
     world.controls().autoRotate = false;
-}
 
+    //Ask Wikipedia for info
+    if (data.scientificName) {
+        const wikiData = await fetchPlantInfo(data.scientificName);
+        
+        if (wikiData) {
+            //Put an image if exists
+            if (wikiData.imageUrl) {
+                imgElement.src = wikiData.imageUrl;
+                imgElement.style.display = "block";
+            } else {
+                noImageMsg.style.display = "block";
+            }
+
+            //Put a description if exists
+            if (wikiData.description) {
+                //If the description is long. we cut it
+                const shortDesc = wikiData.description.length > 300 
+                    ? wikiData.description.substring(0, 300) + "..." 
+                    : wikiData.description;
+                
+                descElement.innerText = shortDesc;
+                descElement.style.display = "block";
+            }
+        } else {
+            noImageMsg.style.display = "block";
+        }
+    } else {
+        noImageMsg.style.display = "block";
+    }
+}
 //Close modal handler
 document.getElementById("closeModal").addEventListener("click", () => {
     document.getElementById("plantModal").style.display = "none";
