@@ -6,22 +6,34 @@
     <title>FloraGlobe</title>
     <link rel="stylesheet" href="style.css">
     
-    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-    <script src="https://unpkg.com/globe.gl@2.32.0/dist/globe.gl.min.js"></script>
+    <script src="https://unpkg.com/three@0.153.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/globe.gl@2.32.1/dist/globe.gl.min.js"></script>
 </head>
 <body>
-    
+    <audio id="ambientSound" src="ambient.mp3" loop></audio>
+
     <div id="introOverlay">
-        <div id="introContent">
-            <h1>FloraGlobe</h1>
-            <p class="description">An interactive, open-source engine dedicated to global biodiversity. Explore real-time occurrences of plant life across the planet, mapped through the Global Biodiversity Information Facility data network.</p>
-            <p class="action-text">[ Click anywhere to initiate sequence ]</p>
+        <h1>FloraGlobe</h1>
+        <p>An interactive, open-source engine dedicated to global biodiversity. Explore real-time occurrences of plant life across the planet, mapped through the Global Biodiversity Information Facility data network.</p>
+        <p>[ Click anywhere to initiate sequence ]</p>
+    </div>
+
+    <div id="plantModal">
+        <div class="modal-content">
+            <span id="closeModal">&times;</span>
+            <h2 id="plantName">Scientific Name</h2>
+            
+            <img id="plantImage" src="" alt="Plant Image" style="display: none;">
+            
+            <div class="plant-details">
+                <div class="detail-item"><p><strong>Family</strong> <span id="plantFamily"></span></p></div>
+                <div class="detail-item"><p><strong>Country</strong> <span id="plantCountry"></span></p></div>
+                <div class="detail-item"><p><strong>Coordinates</strong> <span id="plantCoords"></span></p></div>
+            </div>
         </div>
     </div>
-    
+
     <div id="globeViz"></div>
-    
-    <audio id="ambientSound" loop src="ambient.mp3"></audio>
 
     <script src="audio.js"></script>
     <script src="animation.js"></script>

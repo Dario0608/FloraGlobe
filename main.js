@@ -1,70 +1,98 @@
-//Initialize the 3D Globe instance and link it to the HTML container
+//Initialize Globe
 const world = Globe()
     (document.getElementById("globeViz"))
     .globeImageUrl("https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg")
     .backgroundImageUrl("https://unpkg.com/three-globe/example/img/night-sky.png");
 
-world.controls().autoRotate = false; 
-//Set initial POV in stars
-world.pointOfView({ alt: 20 });    
+world.controls().autoRotate = false;
 
-//URL for the plant icon with transparent background
-const plantIconUrl = "https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/72x72/1f33f.png";
+//Base 3D geometries and materials
+const trunkGeo = new THREE.CylinderGeometry(0.1, 0.2, 1, 8);
+trunkGeo.rotateX(Math.PI / 2);
+const trunkMat = new THREE.MeshLambertMaterial({ color: 0x5c4033 });
 
-//Asynchronous function to fetch biodiversity data from the GBIF API
+const leavesGeo = new THREE.DodecahedronGeometry(0.8);
+const leavesMat = new THREE.MeshLambertMaterial({ color: 0x2ecc71 });
+
+//Fetch API data
 async function getPlantData() {
     const apiUrl = "https://api.gbif.org/v1/occurrence/search?kingdomKey=6&hasCoordinate=true&limit=300";
     try {
         const response = await fetch(apiUrl);
         const data = await response.json();
-
-        //Pass the array of plant results to the visualization funciton
         renderPlantsOnGlobe(data.results);
-        console.log(data.results);
-
     } catch (error) {
-        console.log(error);
+        console.error("API Fetch Error:", error);
     }
 }
 
-//Function to render plant markers onto the globe surface
+//Render 3D objects and map actions
 function renderPlantsOnGlobe(plants) {
-
-    //Load the image plant from internet to use it in 3D
-    const loader = new THREE.TextureLoader();
-
-    //Ask Three.js for CORS permission
-    loader.setCrossOrigin("anonymous");
-
-    const texture = loader.load(plantIconUrl);
-
-    //Use Three.js custom objects for billboarding images instead of default points
     world
         .objectsData(plants)
         .objectLat(d => d.decimalLatitude)
         .objectLng(d => d.decimalLongitude)
-        .objectAltitude(0.01)
-
+        .objectAltitude(0)
         .objectThreeObject(d => {
-            //Make material that supports transparency and use the image 
-            //Then, create the 2D sprite that always look the camera
-            const material = new THREE.SpriteMaterial({ map: texture });
-            const sprite = new THREE.Sprite(material);
+            const treeGroup = new THREE.Group();
 
-            //Scale the image
-            sprite.scale.set(1.5, 2.0, 1.0);
-            return sprite;
+            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+            trunk.position.z = 0.5;
+
+            const leaves = new THREE.Mesh(leavesGeo, leavesMat);
+            leaves.position.z = 1.4;
+
+            treeGroup.add(trunk);
+            treeGroup.add(leaves);
+            treeGroup.scale.set(1.2, 1.2, 1.2);
+
+            return treeGroup;
         })
-        .objectLabel(d => d.scientificName); 
+        .objectLabel(d => {
+            const name = d.scientificName || 'Unknown Species';
+            return `<div style="font-size: 1.8rem; font-family: -apple-system, sans-serif; color: white; background: rgba(10,10,10,0.95); padding: 10px 15px; border-radius: 8px; border-left: 4px solid #2ecc71;">
+                ${name}
+            </div>`;
+        })
+        .onObjectClick(plantData => openPlantModal(plantData));
 }
 
+//Open modal container with API details
+function openPlantModal(data) {
+    document.getElementById("plantName").innerText = data.scientificName || "Unknown Species";
+    document.getElementById("plantFamily").innerText = data.family || "Data Missing";
+    document.getElementById("plantCountry").innerText = data.country || "Location unknown";
+
+    const lat = data.decimalLatitude ? data.decimalLatitude.toFixed(4) : '--';
+    const lng = data.decimalLongitude ? data.decimalLongitude.toFixed(4) : '--';
+    document.getElementById("plantCoords").innerText = `${lat}, ${lng}`;
+
+    const imgElement = document.getElementById("plantImage");
+    if (data.media && data.media.length > 0 && data.media[0].identifier) {
+        imgElement.src = data.media[0].identifier;
+        imgElement.style.display = "block";
+    } else {
+        imgElement.src = "";
+        imgElement.style.display = "none";
+    }
+
+    document.getElementById("plantModal").style.display = "flex";
+    world.controls().autoRotate = false;
+}
+
+//Close modal handler
+document.getElementById("closeModal").addEventListener("click", () => {
+    document.getElementById("plantModal").style.display = "none";
+    world.controls().autoRotate = true;
+});
+
+//Start application sequences on click
 document.getElementById("introOverlay").addEventListener("click", () => {
     const overlay = document.getElementById("introOverlay");
     overlay.style.opacity = "0";
-    setTimeout(() => { overlay.style.display = "none"; }, 2500); 
+    setTimeout(() => { overlay.style.display = "none"; }, 2500);
 
     playAmbientAudio();
-    startCinematicDescent(world);
-    
+    startGlobeRotation(world);
     getPlantData();
 });
