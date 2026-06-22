@@ -6,6 +6,9 @@ const world = Globe()
 
 world.controls().autoRotate = false;
 
+//Global variable to store plants data
+let cachedPlants = [];
+
 //Base 3D geometries and materials
 const trunkGeo = new THREE.CylinderGeometry(0.1, 0.2, 1, 8);
 trunkGeo.rotateX(Math.PI / 2);
@@ -20,7 +23,12 @@ async function getPlantData() {
     try {
         const response = await fetch(apiUrl);
         const data = await response.json();
-        renderPlantsOnGlobe(data.results);
+        
+        cachedPlants = data.results;
+        
+        renderPlantsOnGlobe(cachedPlants);
+
+        populateCountryDropdown();
     } catch (error) {
         console.error("API Fetch Error:", error);
     }
@@ -117,7 +125,7 @@ async function openPlantModal(data) {
 
             //Put a description if exists
             if (wikiData.description) {
-                //If the description is long. we cut it
+                //If the description is long, we cut it
                 const shortDesc = wikiData.description.length > 300 
                     ? wikiData.description.substring(0, 300) + "..." 
                     : wikiData.description;
@@ -131,7 +139,10 @@ async function openPlantModal(data) {
     } else {
         noImageMsg.style.display = "block";
     }
+
+    updateModalFavoriteButton(data);
 }
+
 //Close modal handler
 document.getElementById("closeModal").addEventListener("click", () => {
     document.getElementById("plantModal").style.display = "none";
