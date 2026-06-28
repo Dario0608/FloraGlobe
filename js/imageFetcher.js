@@ -22,7 +22,7 @@ async function fetchPlantInfo(scientificName) {
         };
         
     } catch (error) {
-        console.error("Error de conexión con Wikipedia:", error);
+        console.error("Wikipedia Error Connection:", error);
         return null;
     }
 }

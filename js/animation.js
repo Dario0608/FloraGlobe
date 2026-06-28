@@ -96,3 +96,13 @@ function updateModalFavoriteButton(plant) {
 document.getElementById('btnToggleFavorite').addEventListener('click', toggleFavorite);
 
 document.addEventListener('DOMContentLoaded', renderFavoritesList);
+
+//Function to trigger the bubble morphing animation for the sidebar
+function revealSidebarBubble() {
+    const sidebar = document.getElementById('glassSidebar');
+    if (sidebar) {
+        setTimeout(() => {
+            sidebar.classList.add('visible');
+        }, 600);
+    }
+}

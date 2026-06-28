@@ -183,4 +183,8 @@ document.getElementById("introOverlay").addEventListener("click", () => {
     playAmbientAudio();
     startGlobeRotation(world);
     getPlantData();
+    
+    if (typeof revealSidebarBubble === 'function') {
+        revealSidebarBubble();
+    }
 });
