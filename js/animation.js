@@ -26,6 +26,26 @@ function startGlobeRotation(globeInstance) {
 let favoritePlants = JSON.parse(localStorage.getItem('globeFavorites')) || [];
 let currentActivePlant = null;
 
+//Save the plant object to localStorage and update the UI
+function saveToFavorites(plant) {
+    // Check if the plant is already in the list to avoid duplicates
+    const alreadyExists = favoritePlants.some(p => p.key === plant.key);
+    
+    if (!alreadyExists) {
+        //Add new plant to the array
+        favoritePlants.push(plant);
+        
+        //Save the updated array to browser's Local Storage
+        localStorage.setItem('globeFavorites', JSON.stringify(favoritePlants));
+        
+        //Refresh the visual list in the sidebar
+        if (typeof renderFavoritesList === 'function') {
+            renderFavoritesList();
+        }
+    }
+}
+
+
 //Function to update the lateral panel
 function renderFavoritesList() {
     const container = document.getElementById('favoritesContainer');
