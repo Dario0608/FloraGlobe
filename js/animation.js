@@ -22,7 +22,7 @@ function startGlobeRotation(globeInstance) {
 }
 
 //Favorite Section
-//Load the favorites saved in browser; ohterwise, start with an empty array
+//Load saved favorites or initialize empty array
 let favoritePlants = JSON.parse(localStorage.getItem('globeFavorites')) || [];
 let currentActivePlant = null;
 
@@ -52,7 +52,7 @@ function renderFavoritesList() {
     container.innerHTML = '';
 
     if (favoritePlants.length === 0) {
-        container.innerHTML = '<p style="font-size:0.9rem; color:#aaa; text-align:center;">There is no favorites plants</p>';
+        container.innerHTML = '<p style="font-size:0.9rem; color:#aaa; text-align:center;">There are no favorites plants</p>';
         return;
     }
 
