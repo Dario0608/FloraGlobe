@@ -80,8 +80,10 @@
             <h3>Filter by Zones</h3>
             <div class="custom-select-wrapper">
                 <div class="custom-select-trigger" id="customCountryTrigger">
-                    <span id="selectedCountryText">Select a Country</span>
-                    <i class="fa-solid fa-chevron-down"></i>
+                    <span id="selectedCountryText" style="color: white;">
+                        <i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading...
+                    </span>
+                    <i class="fa-solid fa-chevron-down" id="dropdownChevron" style="display: none;"></i>
                 </div>
                 <div class="custom-options-container" id="customOptionsContainer">
                     <ul class="custom-options-list" id="customCountryList">
@@ -101,11 +103,11 @@
     </div>
 
     <div id="globeViz"></div>
-    
+
     <div id="imageLightbox" class="lightbox-overlay">
         <img id="lightboxImg" src="" alt="Full size plant">
     </div>
-    
+
     <script src="js/audio.js"></script>
     <script src="js/animation.js"></script>
     <script src="js/imageFetcher.js"></script>

@@ -422,13 +422,11 @@ function triggerUprootSuccess(plant, startX, startY) {
         ghost.remove();
         sidebarBtn.classList.remove('pulse-glow');
 
-        //Open favorites panel
         const panelFavorites = document.getElementById('panelFavorites');
         if (panelFavorites.style.display !== "block" && typeof togglePanel === 'function') {
             togglePanel(panelFavorites, sidebarBtn);
         }
 
-        //SAVE TO FAVORITES LOGIC
         if (typeof saveToFavorites === 'function') {
             saveToFavorites(plant);
         }
@@ -438,59 +436,32 @@ function triggerUprootSuccess(plant, startX, startY) {
 
 //Filter plants based on search inputs and update the globe
 function filterAndRenderPlants() {
-    const searchInput = document.getElementById('searchInput');
-
+    const searchInput = document.getElementById('searchInput'); 
     const customTrigger = document.getElementById('customCountryTrigger');
+    
+    const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
     const selectedCountry = customTrigger ? customTrigger.getAttribute('data-selected-country') : '';
 
-    const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
-
     const filtered = cachedPlants.filter(plant => {
-        const matchesSearch = !query ||
+        const matchesSearch = !query || 
             (plant.scientificName && plant.scientificName.toLowerCase().includes(query)) ||
             (plant.vernacularName && plant.vernacularName.toLowerCase().includes(query)) ||
             (plant.family && plant.family.toLowerCase().includes(query)) ||
             (plant.genus && plant.genus.toLowerCase().includes(query));
-
+            
         const matchesCountry = !selectedCountry || plant.country === selectedCountry;
 
         return matchesSearch && matchesCountry;
     });
 
-    const searchFeedback = document.getElementById('searchFeedback');
-    const zoneFeedback = document.getElementById('zoneFeedback');
-    const feedbackText = filtered.length > 0 ? `Found ${filtered.length} species.` : 'No species found.';
-
-    if (searchFeedback) searchFeedback.innerText = feedbackText;
-    if (zoneFeedback) zoneFeedback.innerText = feedbackText;
-
+  
     renderPlantsOnGlobe(filtered);
+    
+  
+    return filtered; 
 }
 
-//Event listeners for real-time filtering and custom UI handling
-document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('searchInput');
-    const btnExecuteSearch = document.getElementById('btnExecuteSearch');
-
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            const customTrigger = document.getElementById('customCountryTrigger');
-            if (customTrigger) customTrigger.removeAttribute('data-selected-country');
-            const triggerText = document.getElementById('selectedCountryText');
-            if (triggerText) triggerText.innerText = 'Select a Country';
-            const zoneFeedback = document.getElementById('zoneFeedback');
-            if (zoneFeedback) zoneFeedback.innerText = '';
-
-            filterAndRenderPlants();
-        });
-    }
-
-    if (btnExecuteSearch) {
-        btnExecuteSearch.addEventListener('click', filterAndRenderPlants);
-    }
-});
-
-//Lightbox fullscreen image
+//Lightbox fullscreen image logic
 function openFullscreenImage(imgUrl) {
     const lightbox = document.getElementById('imageLightbox');
     const lightboxImg = document.getElementById('lightboxImg');
@@ -512,3 +483,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+
+//Dynamic country fetchin
+async function fetchAndRenderCountry(countryName, isoCode) {
+    //ISO codes array about countries with small area
+    const microStates = [
+        "AD", "AG", "BB", "BH", "BS", "CV", "CY", "DM", "FJ", "FM", "GD", "JM", "KI",
+        "KM", "KN", "LB", "LC", "LI", "LU", "MC", "MH", "MT", "MU", "MV", "NR", "PR",
+        "PW", "QA", "RW", "SB", "SC", "SG", "SM", "ST", "TO", "TT", "TV", "VA", "VC", "VU", "WS"
+    ];
+
+    //Limit = 75 plants to avoid overplotting
+    const fetchLimit = microStates.includes(isoCode) ? 75 : 300;
+
+    try {
+        const apiUrl = `https://api.gbif.org/v1/occurrence/search?kingdomKey=6&hasCoordinate=true&country=${isoCode}&limit=${fetchLimit}`;
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (data.results && data.results.length > 0) {
+            const existingKeys = new Set(cachedPlants.map(p => p.key));
+            
+            data.results.forEach(newPlant => {
+                if (!existingKeys.has(newPlant.key)) {
+                    newPlant.country = countryName; 
+                    cachedPlants.push(newPlant);
+                }
+            });
+        }
+    } catch (error) {
+        console.error("Error fetching country data from GBIF:", error);
+    }
+
+    return filterAndRenderPlants();
+}
