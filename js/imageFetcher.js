@@ -16,9 +16,25 @@ async function fetchPlantInfo(scientificName) {
         const pageId = Object.keys(pages)[0];
         const pageData = pages[pageId];
 
+        const description = pageData.extract ? pageData.extract : null;
+        let extractedCommonName = null;
+
+        if (description) {
+            const match = description.match(/(?:(?:commonly|also|often|widely|frequently)\s+(?:known\s+as|called|referred\s+to\s+as)|common\s+names?\s+(?:include|are|is)|(?:known|goes)\s+by\s+(?:the\s+)?common\s+names?)\s+['"]?([^,'"\.\(]+)/i);
+            
+            if (match) {
+                let cleanName = match[1].trim();
+                if (cleanName.toLowerCase().startsWith('the ')) {
+                    cleanName = cleanName.substring(4);
+                }
+                extractedCommonName = cleanName; 
+            }
+        }
+
         return {
             imageUrl: (pageData.thumbnail && pageData.thumbnail.source) ? pageData.thumbnail.source : null,
-            description: pageData.extract ? pageData.extract : null
+            description: description,
+            extractedCommonName: extractedCommonName
         };
         
     } catch (error) {

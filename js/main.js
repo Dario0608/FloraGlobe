@@ -166,21 +166,57 @@ async function openPlantModal(data) {
         const wikiData = await fetchPlantInfo(data.scientificName);
 
         if (wikiData) {
+            let hasAnyInfo = false; 
+
+            if (!data.vernacularName && wikiData.extractedCommonName) {
+                const extName = wikiData.extractedCommonName;
+                document.getElementById("plantCommonName").innerText = extName.charAt(0).toUpperCase() + extName.slice(1);
+            }
+
             if (wikiData.imageUrl) {
                 imgElement.src = wikiData.imageUrl;
                 imgElement.style.display = "block";
-            } else {
-                noImageMsg.style.display = "block";
+                imgElement.style.cursor = "zoom-in";
+                imgElement.onclick = () => openFullscreenImage(wikiData.imageUrl);
+                hasAnyInfo = true; 
             }
 
             if (wikiData.description) {
-                const shortDesc = wikiData.description.length > 300
-                    ? wikiData.description.substring(0, 300) + "..."
-                    : wikiData.description;
+                const fullDesc = wikiData.description;
+                const limit = 200;
 
-                descElement.innerText = shortDesc;
+                if (fullDesc.length > limit) {
+                    const shortDesc = fullDesc.substring(0, limit) + "...";
+                    
+                    descElement.innerHTML = `
+                        <span id="desc-short">${shortDesc} <span id="btn-read-more" style="cursor:pointer; color:#2ecc71; font-weight:bold; white-space: nowrap;">[Read more]</span></span>
+                        <span id="desc-full" style="display:none;">${fullDesc} <span id="btn-read-less" style="cursor:pointer; color:#e74c3c; font-weight:bold; white-space: nowrap;">[Show less]</span></span>
+                    `;
+
+                    setTimeout(() => {
+                        const btnMore = document.getElementById('btn-read-more');
+                        const btnLess = document.getElementById('btn-read-less');
+                        if(btnMore) btnMore.addEventListener('click', () => {
+                            document.getElementById('desc-short').style.display = 'none';
+                            document.getElementById('desc-full').style.display = 'inline';
+                        });
+                        if(btnLess) btnLess.addEventListener('click', () => {
+                            document.getElementById('desc-full').style.display = 'none';
+                            document.getElementById('desc-short').style.display = 'inline';
+                        });
+                    }, 10);
+                } else {
+                    descElement.innerText = fullDesc;
+                }
+                
                 descElement.style.display = "block";
+                hasAnyInfo = true; 
             }
+
+            if (!hasAnyInfo) {
+                noImageMsg.style.display = "block";
+            }
+
         } else {
             noImageMsg.style.display = "block";
         }
@@ -451,5 +487,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnExecuteSearch) {
         btnExecuteSearch.addEventListener('click', filterAndRenderPlants);
+    }
+});
+
+//Lightbox fullscreen image
+function openFullscreenImage(imgUrl) {
+    const lightbox = document.getElementById('imageLightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+
+    if (!imgUrl || !lightbox) return;
+
+    lightboxImg.src = imgUrl;
+    lightbox.style.display = 'flex';
+
+    setTimeout(() => lightbox.classList.add('active'), 10);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const lightbox = document.getElementById('imageLightbox');
+    if (lightbox) {
+        lightbox.addEventListener('click', () => {
+            lightbox.classList.remove('active');
+            setTimeout(() => lightbox.style.display = 'none', 300);
+        });
     }
 });

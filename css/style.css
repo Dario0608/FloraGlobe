@@ -153,3 +153,36 @@ body {
     color: white;
     background: rgba(255, 255, 255, 0.2);
 }
+
+.lightbox-overlay {
+    display: none; 
+    position: fixed; 
+    top: 0; left: 0; 
+    width: 100vw; height: 100vh; 
+    background-color: rgba(0, 0, 0, 0.85); 
+    z-index: 999999; 
+    justify-content: center; 
+    align-items: center;
+    backdrop-filter: blur(5px);
+    cursor: zoom-out;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lightbox-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.lightbox-overlay img {
+    max-width: 90%; 
+    max-height: 90%; 
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    transform: scale(0.8);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.lightbox-overlay.active img {
+    transform: scale(1);
+}
