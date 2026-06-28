@@ -28,48 +28,41 @@
             <h2 id="plantName">Scientific Name</h2>
 
             <h3 id="plantCommonName"
-                style="margin-top: -1rem; margin-bottom: 1rem; font-weight: normal; color: #e0e0e0; font-size: 1.2rem;">
-                Common Name</h3>
-            <p id="plantDescription" style="font-size: 1rem; line-height: 1.5; margin-bottom: 1.5rem; display: none;">
-            </p>
+                style="margin-top: -1rem; margin-bottom: 1rem; font-weight: normal; color: #e0e0e0; font-size: 1.2rem; font-style: italic;">
+            </h3>
 
-            <img id="plantImage" src="" alt="Plant Image" style="display: none;">
-            <p id="noImageMessage" style="display: none; text-align: center; color: #888; margin-bottom: 1.5rem;">
-                No images found of this plant on Wikipedia.
-            </p>
+            <div style="display: flex; gap: 2rem; align-items: flex-start; margin-top: 1.5rem;">
+                <img id="modalImage" src="" alt="Plant image"
+                    style="width: 250px; height: 250px; object-fit: cover; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none;">
 
-            <div class="plant-details">
-                <div class="detail-item">
-                    <p><strong>Family</strong> <span id="plantFamily"></span></p>
-                </div>
-                <div class="detail-item">
-                    <p><strong>Country</strong> <span id="plantCountry"></span></p>
-                </div>
-                <div class="detail-item">
-                    <p><strong>Coordinates</strong> <span id="plantCoords"></span></p>
+                <div style="flex: 1;">
+                    <p id="modalDescription"
+                        style="font-size: 1rem; line-height: 1.6; color: #ddd; display: none; margin-top: 0;">
+                    </p>
+                    <p id="noImageMsg" style="font-size: 0.9rem; color: #aaa; font-style: italic; display: none;">
+                        No additional information available for this species.
+                    </p>
+                    <button id="btnToggleFavorite" class="favorite-modal-btn">
+                        <i class="fa-regular fa-star"></i> Add to favorites
+                    </button>
                 </div>
             </div>
 
-            <button id="btnToggleFavorite" class="favorite-modal-btn">
-                <i class="fa-regular fa-star"></i> Add to Favorites
-            </button>
-
+            <div class="plant-details">
+                <p><span>Family</span> <span id="plantFamily"></span></p>
+                <p><span>Genus</span> <span id="plantGenus"></span></p>
+                <p><span>Country</span> <span id="plantCountry"></span></p>
+                <p><span>Coordinates</span> <span id="plantCoords"></span></p>
+            </div>
         </div>
     </div>
 
-    <nav id="glassSidebar">
-        <button class="menu-btn" id="btnSearch" title="Search by Keyboard">
-            <i class="fa-solid fa-magnifying-glass"></i>
-        </button>
 
-        <button class="menu-btn" id="btnZones" title="Filter by Zone">
-            <i class="fa-solid fa-earth-americas"></i>
-        </button>
-
-        <button class="menu-btn" id="btnFavorites" title="Favorites Plants">
-            <i class="fa-solid fa-star"></i>
-        </button>
-    </nav>
+    <div id="glassSidebar">
+        <button class="menu-btn" id="btnSearch" title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <button class="menu-btn" id="btnZones" title="Zones"><i class="fa-solid fa-earth-americas"></i></button>
+        <button class="menu-btn" id="btnFavorites" title="Favorites"><i class="fa-solid fa-star"></i></button>
+    </div>
 
     <div id="sidePanels">
 
@@ -80,20 +73,23 @@
                 <button id="btnExecuteSearch"><i class="fa-solid fa-arrow-right"></i></button>
             </div>
 
-            <div id="searchFeedback" style="margin-top: 1rem; font-size: 0.9rem; color: #ddd;"></div>
+            <div id="searchFeedback" class="feedback-text" style="margin-top: 1rem;"></div>
         </div>
 
         <div id="panelZones" class="glass-panel" style="display: none;">
-            <h3>Filter by Zones</h3>
-            <p style="font-size: 0.85rem; color: #ccc; margin-bottom: 1rem;">Select an ubication to center in the globe:</p>
-            
-            <div class="zone-box">
-                <select id="countrySelect">
-                    <option value="">Loading Countries</option>
-                </select>
+            <h3>Filter by Zones</h3>            
+            <div class="custom-select-wrapper">
+                <div class="custom-select-trigger" id="customCountryTrigger">
+                    <span id="selectedCountryText">Select a Country</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="custom-options-container" id="customOptionsContainer">
+                    <ul class="custom-options-list" id="customCountryList">
+                        </ul>
+                </div>
             </div>
             
-            <div id="zoneFeedback" style="margin-top: 1rem; font-size: 0.9rem; color: #2ecc71;"></div>
+            <div id="zoneFeedback" class="feedback-text" style="margin-top: 1rem;"></div>
         </div>
 
 
@@ -110,7 +106,6 @@
     <script src="js/animation.js"></script>
     <script src="js/imageFetcher.js"></script>
     <script src="js/menu.js"></script>
-    <script src="js/favorites.js"></script>
     <script src="js/main.js"></script>
 </body>
 

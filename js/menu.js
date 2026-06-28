@@ -8,22 +8,30 @@ const panelZones = document.getElementById('panelZones');
 const panelFavorites = document.getElementById('panelFavorites');
 
 //Function to open and close panels
-function togglePanel(panelToToggle) {
+function togglePanel(panelToToggle, buttonClicked) {
+
+    if (typeof clearHighlights === 'function') clearHighlights();
+    
+    const allPanels = [panelSearch, panelZones, panelFavorites];
+    const allButtons = [btnSearch, btnZones, btnFavorites];
+
+    //Close and open the panel if its open or not
     if (panelToToggle.style.display === "block") {
         panelToToggle.style.display = "none";
+        buttonClicked.classList.remove('active');
         return;
     }
 
-    panelSearch.style.display = "none";
-    panelZones.style.display = "none";
-    panelFavorites.style.display = "none";
+    allPanels.forEach(panel => panel.style.display = "none");
+    allButtons.forEach(btn => btn.classList.remove('active'));
 
     panelToToggle.style.display = "block";
+    buttonClicked.classList.add('active');
 }
 
-btnSearch.addEventListener('click', () => togglePanel(panelSearch));
-btnZones.addEventListener('click', () => togglePanel(panelZones));
-btnFavorites.addEventListener('click', () => togglePanel(panelFavorites));
+btnSearch.addEventListener('click', () => togglePanel(panelSearch, btnSearch));
+btnZones.addEventListener('click', () => togglePanel(panelZones, btnZones));
+btnFavorites.addEventListener('click', () => togglePanel(panelFavorites, btnFavorites));
 
 //Identify search elements
 const btnExecuteSearch = document.getElementById('btnExecuteSearch');
@@ -34,37 +42,39 @@ const searchFeedback = document.getElementById('searchFeedback');
 async function handleSearch() {
     const query = searchInput.value.trim().toLowerCase();
     
+    searchFeedback.className = "feedback-text"; 
+    
     if (!query) {
         searchFeedback.innerText = "Please, enter a plant name";
-        searchFeedback.style.color = "#ffcc00";
+        searchFeedback.classList.add("feedback-error");
+        if (typeof clearHighlights === 'function') clearHighlights();
         return;
     }
     
-    searchFeedback.innerText = "Searching...";
-    searchFeedback.style.color = "#2ecc71";
-
-    //Look for information of plants
-    const foundPlant = cachedPlants.find(plant => {
-        const name = (plant.scientificName || "").toLowerCase();
-        const common = (plant.vernacularName || "").toLowerCase();
-        return name.includes(query) || common.includes(query);
+    searchFeedback.innerText = "Searching on globe...";
+    searchFeedback.classList.add("feedback-success");
+    
+    const results = cachedPlants.filter(plant => {
+        const sciName = (plant.scientificName || "").toLowerCase();
+        const genericName = (plant.genericName || "").toLowerCase();
+        return sciName.includes(query) || genericName.includes(query);
     });
-
-    if (foundPlant) {
-        searchFeedback.innerText = `Found it`;
+    
+    searchFeedback.className = "feedback-text";
+    
+    if (results.length > 0) {
+        searchFeedback.innerText = `Found ${results.length} matches!`;
+        searchFeedback.classList.add("feedback-success");
         
-        const lat = foundPlant.decimalLatitude;
-        const lng = foundPlant.decimalLongitude;
-
-        //lat, lng = position | 0.4 = height/zoom | 2500 milliseconds
-        world.pointOfView({ lat: lat, lng: lng, altitude: 0.4 }, 2500);
+        setHighlightedPlants(results);
+        
+        const target = results[0];
+        world.pointOfView({ lat: target.decimalLatitude, lng: target.decimalLongitude, altitude: 0.5 }, 2000);
         world.controls().autoRotate = false;
-        
-        openPlantModal(foundPlant);
-
     } else {
-        searchFeedback.innerText = "No plants found with this name on globe";
-        searchFeedback.style.color = "#ff7675";
+        searchFeedback.innerText = "No occurrences found for that name.";
+        searchFeedback.classList.add("feedback-error");
+        if (typeof clearHighlights === 'function') clearHighlights();
     }
 }
 
@@ -79,32 +89,46 @@ searchInput.addEventListener('keypress', (e) => {
 
 //Fill the dropdown with countries
 function populateCountryDropdown() {
-    const countrySelect = document.getElementById('countrySelect');
+    const list = document.getElementById('customCountryList');
+    if (!list) return;
+    list.innerHTML = '';
     
-    //Default option
-    countrySelect.innerHTML = '<option value="">Select a Country</option>';
-    
+    //Get the unique countries and sort them
     const uniqueCountries = [...new Set(cachedPlants.map(plant => plant.country).filter(Boolean))];
-    
-    //Order by Alphabet
     uniqueCountries.sort();
     
-    //Add to HTML
     uniqueCountries.forEach(country => {
-        const option = document.createElement('option');
-        option.value = country;
-        option.innerText = country;
-        countrySelect.appendChild(option);
+        const li = document.createElement('li');
+        li.className = 'custom-option';
+        li.innerText = country;
+        
+        //Bubble effect
+        li.addEventListener('click', () => {
+            document.getElementById('selectedCountryText').innerText = country;
+            document.getElementById('customOptionsContainer').classList.remove('open');
+            handleCountrySelection(country);
+        });
+        
+        list.appendChild(li);
     });
 }
 
-//Country selector event
-document.getElementById('countrySelect').addEventListener('change', (e) => {
-    const selectedCountry = e.target.value;
+//Open and close when we click
+const trigger = document.getElementById('customCountryTrigger');
+if (trigger) {
+    trigger.addEventListener('click', () => {
+        document.getElementById('customOptionsContainer').classList.toggle('open');
+    });
+}
+
+function handleCountrySelection(selectedCountry) {
     const zoneFeedback = document.getElementById('zoneFeedback');
+    
+    zoneFeedback.className = "feedback-text";
     
     if (!selectedCountry) {
         zoneFeedback.innerText = "";
+        if (typeof clearHighlights === 'function') clearHighlights();
         return;
     }
     
@@ -113,15 +137,20 @@ document.getElementById('countrySelect').addEventListener('change', (e) => {
     
     if (plantsInCountry.length > 0) {
         zoneFeedback.innerText = `Showing ${plantsInCountry.length} plants in ${selectedCountry}`;
+        zoneFeedback.classList.add("feedback-success"); 
+        
+        setHighlightedPlants(plantsInCountry);
         
         const targetPlant = plantsInCountry[0];
-        
         world.pointOfView({ 
             lat: targetPlant.decimalLatitude, 
             lng: targetPlant.decimalLongitude, 
             altitude: 0.7
         }, 2000);
-        
         world.controls().autoRotate = false;
+    } else {
+        zoneFeedback.innerText = "No occurrences in this region.";
+        zoneFeedback.classList.add("feedback-error");
+        if (typeof clearHighlights === 'function') clearHighlights();
     }
-});
+}

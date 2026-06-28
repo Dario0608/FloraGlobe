@@ -9,6 +9,11 @@ world.controls().autoRotate = false;
 //Global variable to store plants data
 let cachedPlants = [];
 
+
+const treeMaterials = {}; 
+let highlightedPlants = []; 
+let blinkClock = new THREE.Clock();
+
 //Base 3D geometries and materials
 const trunkGeo = new THREE.CylinderGeometry(0.1, 0.2, 1, 8);
 trunkGeo.rotateX(Math.PI / 2);
@@ -47,37 +52,56 @@ function renderPlantsOnGlobe(plants) {
             const trunk = new THREE.Mesh(trunkGeo, trunkMat);
             trunk.position.z = 0.5;
 
-            const leaves = new THREE.Mesh(leavesGeo, leavesMat);
+            const individualLeavesMat = leavesMat.clone();
+            const leaves = new THREE.Mesh(leavesGeo, individualLeavesMat);
             leaves.position.z = 1.4;
 
             treeGroup.add(trunk);
             treeGroup.add(leaves);
             treeGroup.scale.set(1.2, 1.2, 1.2);
 
+            if (d.key) {
+                treeMaterials[d.key] = individualLeavesMat;
+            }
+
             return treeGroup;
         })
-
-        .objectLabel(d => {
-            const name = d.scientificName || 'Unknown Species';
-            //Glass Design
-            return `<div style="
-                font-size: 1.5rem; 
-                font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
-                color: white; 
-                background: rgba(255, 255, 255, 0.15); 
-                backdrop-filter: blur(10px); 
-                -webkit-backdrop-filter: blur(10px);
-                border-radius: 15px; 
-                border: 1px solid rgba(255, 255, 255, 0.2); 
-                
-                padding: 10px 20px; 
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-                pointer-events: none;
-            ">
-                ${name}
-            </div>`;
-        })
         .onObjectClick(plantData => openPlantModal(plantData));
+}
+
+
+function animateBlink() {
+    if (highlightedPlants.length > 0) {
+        const time = blinkClock.getElapsedTime() * 5; 
+        const cycle = (Math.sin(time) + 1) / 2; 
+        
+        const currentColor = new THREE.Color(0x2ecc71).lerp(new THREE.Color(0xff0000), cycle);
+
+        highlightedPlants.forEach(plant => {
+            if (treeMaterials[plant.key]) {
+                treeMaterials[plant.key].color.copy(currentColor);
+            }
+        });
+    }
+    requestAnimationFrame(animateBlink);
+}
+animateBlink();
+
+
+function clearHighlights() {
+    if (highlightedPlants.length > 0) {
+        highlightedPlants.forEach(plant => {
+            if (treeMaterials[plant.key]) {
+                treeMaterials[plant.key].color.setHex(0x2ecc71);
+            }
+        });
+        highlightedPlants = [];
+    }
+}
+
+function setHighlightedPlants(plantsList) {
+    clearHighlights(); 
+    highlightedPlants = plantsList;
 }
 
 //Open modal container with API details
@@ -90,15 +114,19 @@ async function openPlantModal(data) {
     document.getElementById("plantCommonName").innerText = commonNameStr.charAt(0).toUpperCase() + commonNameStr.slice(1);
 
     document.getElementById("plantFamily").innerText = data.family || "Data Missing";
+    
+    const genusElement = document.getElementById("plantGenus");
+    if(genusElement) genusElement.innerText = data.genus || "Data Missing";
+    
     document.getElementById("plantCountry").innerText = data.country || "Location unknown";
     
     const lat = data.decimalLatitude ? data.decimalLatitude.toFixed(4) : '--';
     const lng = data.decimalLongitude ? data.decimalLongitude.toFixed(4) : '--';
     document.getElementById("plantCoords").innerText = `${lat}, ${lng}`;
     
-    const imgElement = document.getElementById("plantImage");
-    const noImageMsg = document.getElementById("noImageMessage");
-    const descElement = document.getElementById("plantDescription");
+    const imgElement = document.getElementById("modalImage");
+    const noImageMsg = document.getElementById("noImageMsg");
+    const descElement = document.getElementById("modalDescription");
     
     //Reset
     imgElement.style.display = "none";
@@ -115,7 +143,6 @@ async function openPlantModal(data) {
         const wikiData = await fetchPlantInfo(data.scientificName);
         
         if (wikiData) {
-            //Put an image if exists
             if (wikiData.imageUrl) {
                 imgElement.src = wikiData.imageUrl;
                 imgElement.style.display = "block";
@@ -123,9 +150,7 @@ async function openPlantModal(data) {
                 noImageMsg.style.display = "block";
             }
 
-            //Put a description if exists
             if (wikiData.description) {
-                //If the description is long, we cut it
                 const shortDesc = wikiData.description.length > 300 
                     ? wikiData.description.substring(0, 300) + "..." 
                     : wikiData.description;

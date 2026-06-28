@@ -109,31 +109,28 @@ body {
 }
 
 .plant-details {
-    margin-top: 1rem;
+    margin-top: 1.5rem;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
 }
 
-.plant-details p {
+.plant-details p,
+.plant-details p span:first-child {
     margin: 0;
+    font-size: 1.1rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: #aaa; 
+    font-style: normal;
+}
+
+.plant-details p span:last-child {
+    display: block; 
+    margin-top: 0.2rem;
     font-size: 1.3rem;
-}
-
-.plant-details p span {
-    font-family: serif; 
+    font-family: 'Times New Roman', Times, serif;
     font-style: italic;
-    font-size: 1.4rem; 
-}
-
-.plant-details strong {
-    color: #999;
-    font-weight: 400;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    letter-spacing: 0.05em;
-    display: block;
-    margin-bottom: 0.3rem;
+    color: white;
 }
 
 #closeModal {
