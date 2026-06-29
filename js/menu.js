@@ -11,20 +11,36 @@ const panelFavorites = document.getElementById('panelFavorites');
 function togglePanel(panelToToggle, buttonClicked) {
     if (typeof clearHighlights === 'function') clearHighlights();
 
-    const allPanels = [panelSearch, panelZones, panelFavorites];
-    const allButtons = [btnSearch, btnZones, btnFavorites];
+    const panelSettings = document.getElementById('panelSettings');
+    const btnSettings = document.getElementById('btnSettings');
 
+    const allPanels = [panelSearch, panelZones, panelFavorites, panelSettings];
+    const allButtons = [btnSearch, btnZones, btnFavorites, btnSettings];
+
+    //If clicking the active panel, close it
     if (panelToToggle.style.display === "block") {
         panelToToggle.style.display = "none";
         buttonClicked.classList.remove('active');
         return;
     }
 
-    allPanels.forEach(panel => panel.style.display = "none");
-    allButtons.forEach(btn => btn.classList.remove('active'));
+    allPanels.forEach(panel => {
+        if(panel) panel.style.display = "none";
+    });
+    allButtons.forEach(btn => {
+        if(btn) btn.classList.remove('active');
+    });
 
+    // Show selected panel and highlight its button
     panelToToggle.style.display = "block";
     buttonClicked.classList.add('active');
+}
+//Assign click event to settings gear button
+const btnSettings = document.getElementById('btnSettings');
+const panelSettings = document.getElementById('panelSettings');
+
+if (btnSettings && panelSettings) {
+    btnSettings.addEventListener('click', () => togglePanel(panelSettings, btnSettings));
 }
 
 btnSearch.addEventListener('click', () => togglePanel(panelSearch, btnSearch));
@@ -143,6 +159,12 @@ function populateCountryDropdown() {
         const li = document.createElement('li');
         li.className = 'custom-option';
         li.innerText = country;
+
+        li.addEventListener("mouseenter", () =>{
+            if(typeof playHoverSound === "function"){
+                playHoverSound();
+            }
+        });
 
         li.addEventListener('click', async () => {
             const searchInput = document.getElementById('searchInput');

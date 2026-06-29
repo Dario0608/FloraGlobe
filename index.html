@@ -14,6 +14,8 @@
 
 <body>
     <audio id="ambientSound" src="ambient.mp3" loop></audio>
+    <audio id="hoverSound" src="countriesHover.mp3"></audio>
+    <audio id="favSound" src="favoritePlantAdded.mp3"></audio>
 
     <div id="introOverlay">
         <h1>FloraGlobe</h1>
@@ -59,12 +61,44 @@
 
 
     <div id="glassSidebar">
-        <button class="menu-btn" id="btnSearch" title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
-        <button class="menu-btn" id="btnZones" title="Zones"><i class="fa-solid fa-earth-americas"></i></button>
-        <button class="menu-btn" id="btnFavorites" title="Favorites"><i class="fa-solid fa-star"></i></button>
+        <button class="menu-btn" id="btnSettings" title="Settings">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+
+        <div class="sidebar-divider"></div>
+
+        <button class="menu-btn" id="btnSearch" title="Search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <button class="menu-btn" id="btnZones" title="Zones">
+            <i class="fa-solid fa-earth-americas"></i>
+        </button>
+        <button class="menu-btn" id="btnFavorites" title="Favorites">
+            <i class="fa-solid fa-star"></i>
+        </button>
     </div>
 
     <div id="sidePanels">
+
+        <div id="panelSettings" class="glass-panel" style="display: none;">
+            <h3>Settings</h3>
+
+            <div class="audio-control-group">
+                <label><i class="fa-solid fa-volume-high"></i> Master Volume</label>
+                <input type="range" id="volumeMaster" min="0" max="1" step="0.01" value="0.8">
+            </div>
+
+            <div class="audio-control-group">
+                <label><i class="fa-solid fa-music"></i> Ambient Music</label>
+                <input type="range" id="volumeAmbient" min="0" max="1" step="0.01" value="0.5">
+            </div>
+
+            <div class="audio-control-group">
+                <label><i class="fa-solid fa-wand-magic-sparkles"></i> Interface Effects (FX)</label>
+                <input type="range" id="volumeFX" min="0" max="1" step="0.01" value="0.6">
+            </div>
+        </div>
+
 
         <div id="panelSearch" class="glass-panel" style="display: none;">
             <h3>Search</h3>

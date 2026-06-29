@@ -34,6 +34,10 @@ function saveToFavorites(plant) {
     if (!alreadyExists) {
         //Add new plant to the array
         favoritePlants.push(plant);
+
+        if (typeof playFavoriteSound === 'function') {
+            playFavoriteSound();
+        }
         
         //Save the updated array to browser's Local Storage
         localStorage.setItem('globeFavorites', JSON.stringify(favoritePlants));
@@ -91,6 +95,11 @@ function toggleFavorite() {
     if (index === -1) {
         favoritePlants.push(currentActivePlant);
         btn.innerHTML = '<i class="fa-solid fa-star" style="color: #f1c40f;"></i> Remove from favorites';
+
+        if (typeof playFavoriteSound === 'function') {
+            playFavoriteSound();
+        }
+        
     } else {
         favoritePlants.splice(index, 1);
         btn.innerHTML = '<i class="fa-regular fa-star"></i> Add to favorites';
@@ -117,12 +126,19 @@ document.getElementById('btnToggleFavorite').addEventListener('click', toggleFav
 
 document.addEventListener('DOMContentLoaded', renderFavoritesList);
 
-//Function to trigger the bubble morphing animation for the sidebar
+//Function to trigger the bubble morphing animation for the sidebar and settings
 function revealSidebarBubble() {
     const sidebar = document.getElementById('glassSidebar');
     if (sidebar) {
         setTimeout(() => {
             sidebar.classList.add('visible');
         }, 600);
+    }
+
+    const settings = document.getElementById('glassSettingsBtn');
+    if(settings){
+        setTimeout(() =>{
+            settings.classList.add('visible');
+        })
     }
 }
